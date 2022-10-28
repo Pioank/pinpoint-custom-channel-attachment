@@ -1,18 +1,31 @@
 # Amazon Pinpoint custom channel in journeys for email attachments
 
-This is the solution utilizes Amazon Pinpoint custom channel to support email attachments for Pinpoint Journeys. The attached file is stored in an S3 bucket
+Amazon Pinpoint currently doesn't support attachments when sending emails via Campaigns or Journeys. Customers need to use the Amazon SES SendRawMessage API operation to include attachments, which lacks other features such as customer segmentation and scheduling. Another approach for attachments is to host the file in Amazon S3 and include a pre-signed URL to the emails send. That way you don't need to think about the file size or deliverability.
+
+Email attachments are key for many customers / use cases, some of them are:
+- Monthly bills (specific to the recipient)
+- New terms & conditions (same for all)
+- Contracts (specific to the recipient)
+- Booking confirmation (specific to the recipient)
+- e-Tickets (specific to the recipient)
 
 ## High Level Architecture
 
-The solution uses an AWS Lambda function to call the Pinpoint & SES API for sending emails.
+This is the solution utilizes Amazon Pinpoint custom channel (AWS Lambda function) to support email attachments for Pinpoint Journeys. The AWS Lambda function calls Pinpoint & SES API operation for sending emails. The attached file is stored in an S3 bucket and can be either attached to the email send or accessed via an Amazon S3 pre-signed URL.
 
 ![architecture](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/architecture-n.PNG)
 
 ![attachment-scenarios](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/attachment-scenarios.PNG)
 
+**Note:** Amazon Pinpoint custom channel processes endpoints in batches of 50 per AWS Lambda invokation.
+
 **Attahced files mechanism:** 
 - **One file per recipient:** In this case each recipient (endpoint) should receive a different file e.g. monthly bill. To achieve this, the files stored in S3 should follow the following naming convention prefix_endpointid.file e.g. OctoberBill_111.pdf. You can specify the file prefix in the Amazon Pinpoint journeys custom channel **Custom Data** field. The AWS Lambda function will append the endpoint id and file type. To select this method, specify **ONEPER** in the Pinpoint journey custom data.
 - **One file for the whole journey:** In this case the attachment file name should be the same as the Pinpoint journey custom data file prefix. To select this method, specify **ONEALL** in the Pinpoint journey custom data.
+
+**Sending mechanism for file attachments:**
+- **Attachment per recipient**: To attach and send a file that is specific to a recipient the solution calls the Amazon S3 GetObject API operation per recipient and then the Amazon SES SendRawEmail API operation to send the email with the attachment. To follow that approach specify **ONEPER** in the Pinpoint journey custom data.
+- **Attachment per journey**: To attach the same file for all the recipients the solution calls once the Amazon S3 GetObject API operation, creates a list of all the recipients per AWS Lambda invokation (max 50) and then calls the Amazon SES SendRawEmail API operation to send the email with the attachment.To follow that approach specify **ONEALL** in the Pinpoint journey custom data.
 
 ## Considerations
 
@@ -105,9 +118,9 @@ FriendlySenderName,EmailTemplateName,example@example.com,YES,Oct-Statement,URL
 
 ## Cost
 
-The cost displayed below is only for AWS Lambda and doesn't include the cost per email nor the Amazon Pinpoint's monthly targeted audience cost.
+The cost displayed below is only for AWS Lambda and doesn't include the cost per email, Amazon S3 or the Amazon Pinpoint's monthly targeted audience cost.
 
-![solution-cost](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/custom-channel-cost-usd-n.PNG)
+![solution-cost](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/custom-channel-cost-usd-nn.PNG)
 
 ## Next steps
 
