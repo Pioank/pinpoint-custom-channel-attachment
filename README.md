@@ -6,7 +6,7 @@ This is the solution utilizes Amazon Pinpoint custom channel to support email at
 
 The solution uses an AWS Lambda function to call the Pinpoint & SES API for sending emails.
 
-![architecture](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/architecture.PNG)
+![architecture](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/architecture-n.PNG)
 
 ![attachment-scenarios](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/attachment-scenarios.PNG)
 
@@ -107,7 +107,7 @@ FriendlySenderName,EmailTemplateName,example@example.com,YES,Oct-Statement,URL
 
 The cost displayed below is only for AWS Lambda and doesn't include the cost per email nor the Amazon Pinpoint's monthly targeted audience cost.
 
-![solution-cost](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/custom-channel-cost-usd.PNG)
+![solution-cost](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/custom-channel-cost-usd-n.PNG)
 
 ## Next steps
 
