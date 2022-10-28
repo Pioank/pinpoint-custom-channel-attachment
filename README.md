@@ -9,13 +9,19 @@ Email attachments are key for many customers / use cases, some of them are:
 - Booking confirmation (specific to the recipient)
 - e-Tickets (specific to the recipient)
 
+The solution in this repository enables marketers to design and schedule Amazon Pinpoint journeys with attachments or pre-signed URLs without the support of technical resources.
+
 ## High Level Architecture
 
 This is the solution utilizes Amazon Pinpoint custom channel (AWS Lambda function) to support email attachments for Pinpoint Journeys. The AWS Lambda function calls Pinpoint & SES API operation for sending emails. The attached file is stored in an S3 bucket and can be either attached to the email send or accessed via an Amazon S3 pre-signed URL.
 
-![architecture](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/architecture-n.PNG)
+Marketers can specify the email template, friendly sender name, sender address, attachment and attachment type using Pinpoint custom channel's **Custom data** input field. Data inserted in that field will be accessible by the AWS Lambda function, which will process accordingly. 
+
+The diagrams below outline the solution's features and possible scenarios:
 
 ![attachment-scenarios](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/attachment-scenarios.PNG)
+
+![architecture](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/architecture-n.PNG)
 
 **Note:** Amazon Pinpoint custom channel processes endpoints in batches of 50 per AWS Lambda invokation.
 
@@ -56,6 +62,8 @@ sam deploy --stack-name contextual-targeting --guided
 ```
 
 Fill the fields below as displayed. Change the **AWS Region** to the AWS region of your preference, where Amazon Pinpoint is available.
+
+**Note:** the parameter **FileType** refers to the file type of the attachments. You can change that later in the AWS Lambda code or extend the solution to have it as an input parameter for your marketers.
 
 ```sh
 Configuring SAM deploy
@@ -111,10 +119,31 @@ aws lambda add-permission \
 
 ## Testing
 
+### Step 1
+Upload the file or files to the S3 bucket specified when you deployed the solution.
+
+### Step 2
 Download the email HTML templates below and create them in Pinpoint:
+- [EmailAttachedFile.html](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/email_templates/EmailAttachedFile.html)
+- [EmailNoAttachment.html](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/email_templates/EmailNoAttachment.html)
+- [EmailS3URL.html](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/email_templates/EmailS3URL.html)
 
-FriendlySenderName,EmailTemplateName,example@example.com,YES,Oct-Statement,URL
+### Step 3
+Create an Amazon Pinpoint journey and select **Custom channel** as the first activity. Choose the AWS Lambda function that got deployed as part of this solution.
 
+Under the **Custom data** field enter the data based on the use case you want to test.
+
+**See an example below:** FriendlySenderName,EmailTemplateName,example@example.com,ONEPER,Oct-Statement,URL
+
+1. **FriendlySenderName:** type the Friendly sender name and if you don't want to use one type "NA".
+2. **EmailTemplateName:** this is the Amazon Pinpoint's email template name that you want to use.
+3. **example@example.com:** this is the Pinpoint verified sending identity that will send the emails.
+4. **ONEPER**: this takes 3 values, **ONEALL** this will use one file for all recipients, **ONEPER** this will use one file per recipient (FilePrefix_EndpointId) and **NO** which indicates that no files will be attached.
+5. **Oct-Statement**: this is the S3 file name prefix that will be concatenated with the endpoint id in case you choose **ONEPER**. If you choose **ONEALL** it will search for the file with the exact name you typed.
+6. **URL**: this field takes two values **URL** to generate an S3 pre-signed URL and **FILE** to attach the file to the email.
+
+### Step 4
+Publish the journey and check your inbox
 
 ## Cost
 
@@ -124,7 +153,7 @@ The cost displayed below is only for AWS Lambda and doesn't include the cost per
 
 ## Next steps
 
-Contextual
+At the moment this solution cannot render the email template when sending via Amazon SES SendRawEmail API operation. The next step is to develop a parsing mechanism to do this.
 
 ## Cleanup
 
@@ -133,4 +162,3 @@ To delete the solution, run the following command in the AWS CLI (compatible for
 ```sh
 sam delete
 ```
-
