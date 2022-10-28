@@ -96,6 +96,8 @@ aws lambda add-permission \
 
 ## Testing
 
+Download the email HTML templates below and create them in Pinpoint:
+
 FriendlySenderName,EmailTemplateName,example@example.com,YES,Oct-Statement,URL
 
 
