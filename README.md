@@ -14,8 +14,8 @@ The solution uses an AWS Lambda function to call the Pinpoint & SES API for send
 
 ## Considerations
 
-1. **Events' attribution:** Engagement events from the emails sent won't be attributed automatically back to the journey. These events can still be accessed and analysed if streamed using Amazon Kinesis Firehose. To reconsile the events back to the journey, the solution includes the journey id as  Include trace_id message trace_id
-2. No email personalization when attaching a file:
+1. **Events' attribution:** Engagement events from the emails sent won't be attributed automatically back to the journey. These events can still be accessed and analysed if streamed using Amazon Kinesis Firehose. To reconsile the events back to the journey, the solution includes the journey id as trace_id when sent via the SendMessage Pinpoint API operation and as a tag **JourneyId** when sent via SES SendRawEmail.
+3. **No email personalization when attaching a file:** Emails with attached files sent via the SES SendRawEmail API operation won't support message helpers for personalisation. The message template is expected to not have any user or endpoint attributes.
 
 ## Solution implementation
 
