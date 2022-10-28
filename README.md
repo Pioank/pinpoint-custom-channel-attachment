@@ -26,12 +26,12 @@ The diagrams below outline the solution's features and possible scenarios:
 **Note:** Amazon Pinpoint custom channel processes endpoints in batches of 50 per AWS Lambda invokation.
 
 **Attahced files mechanism:** 
-- **One file per recipient:** In this case each recipient (endpoint) should receive a different file e.g. monthly bill. To achieve this, the files stored in S3 should follow the following naming convention prefix_endpointid.file e.g. OctoberBill_111.pdf. You can specify the file prefix in the Amazon Pinpoint journeys custom channel **Custom Data** field. The AWS Lambda function will append the endpoint id and file type. To select this method, specify **ONEPER** in the Pinpoint journey custom data.
-- **One file for the whole journey:** In this case the attachment file name should be the same as the Pinpoint journey custom data file prefix. To select this method, specify **ONEALL** in the Pinpoint journey custom data.
+- **Attachment per recipient:** In this case each recipient (endpoint) should receive a different file e.g. monthly bill. To achieve this, the files stored in S3 should follow the following naming convention prefix_endpointid.file e.g. OctoberBill_111.pdf. You can specify the file prefix in the Amazon Pinpoint journeys custom channel **Custom Data** field. The AWS Lambda function will append the endpoint id and file type. To select this method, specify **ONEPER** in the Pinpoint journey custom data.
+- **Attachment per journey** In this case the attachment file name should be the same as the Pinpoint journey custom data file prefix. To select this method, specify **ONEALL** in the Pinpoint journey custom data.
 
 **Sending mechanism for file attachments:**
 - **Attachment per recipient**: To attach and send a file that is specific to a recipient the solution calls the Amazon S3 GetObject API operation per recipient and then the Amazon SES SendRawEmail API operation to send the email with the attachment. To follow that approach specify **ONEPER** in the Pinpoint journey custom data.
-- **Attachment per journey**: To attach the same file for all the recipients the solution calls once the Amazon S3 GetObject API operation, creates a list of all the recipients per AWS Lambda invokation (max 50) and then calls the Amazon SES SendRawEmail API operation to send the email with the attachment.To follow that approach specify **ONEALL** in the Pinpoint journey custom data.
+- **Attachment per journey**: To attach the same file for all the recipients the solution calls once the Amazon S3 GetObject API operation, creates a list of all the recipients per AWS Lambda invokation (max 50) and then calls the Amazon SES SendRawEmail API operation once to send the email with the attachment.To follow that approach specify **ONEALL** in the Pinpoint journey custom data.
 
 ## Considerations
 
