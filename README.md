@@ -59,7 +59,7 @@ To deploy this solution, you must have the following:
 Clone the repository to your local machine, navigate there and execute the command below on your SAM CLI:
 
 ```sh
-sam deploy --stack-name contextual-targeting --guided
+sam deploy --stack-name pinpoint-email-attachments --guided
 ```
 
 Fill the fields below as displayed. Change the **AWS Region** to the AWS region of your preference, where Amazon Pinpoint is available.
