@@ -4,9 +4,18 @@ This is the solution utilizes Amazon Pinpoint custom channel to support email at
 
 ## High Level Architecture
 
+The solution uses an AWS Lambda function to call the Pinpoint & SES API for sending emails.
+
 ![architecture](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/architecture.PNG)
 
 ![attachment-scenarios](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/attachment-scenarios.PNG)
+
+**Attahced files mechanism:** This solution assumes that each recipient (endpoint) should receive a different file e.g. monthly bill. To achieve this, the files stored in S3 should follow the following naming convention prefix_endpointid.file e.g. OctoberBill_111.pdf. You can specify the file prefix in the Amazon Pinpoint journeys custom channel **Custom Data** field. The AWS Lambda function will append the endpoint id and file type.
+
+## Considerations
+
+1. **Events' attribution:** Engagement events from the emails sent won't be attributed automatically back to the journey. These events can still be accessed and analysed if streamed using Amazon Kinesis Firehose. To reconsile the events back to the journey, the solution includes the journey id as  Include trace_id message trace_id
+2. No email personalization when attaching a file:
 
 ## Solution implementation
 
@@ -87,6 +96,7 @@ aws lambda add-permission \
 
 ## Testing
 
+FriendlySenderName,EmailTemplateName,example@example.com,YES,Oct-Statement,URL
 
 
 ## Cost
@@ -97,21 +107,12 @@ The cost displayed below is only for AWS Lambda and doesn't include the cost per
 
 ## Next steps
 
-Contextual targeting is not bound to a single channel, like in this solution email. You can extend the **batch-segmentation-postprocessing** workflow to fit your engagement and targeting requirements.
-
-For example, you could implement several branches based on the referenced endpoint channel types and create Amazon Pinpoint customer segments that can be engaged via Push Notifications, SMS, Voice Outbound and In-App.
+Contextual
 
 ## Cleanup
 
-To delete the solution, run the following command in the AWS CLI.
+To delete the solution, run the following command in the AWS CLI (compatible for both Linux & Windows PowerShell).
 
-The command below is compatible with Linux:
-
-```sh
-sam delete
-```
-
-For Windows PowerShell use the command below:
 ```sh
 sam delete
 ```
