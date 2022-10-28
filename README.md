@@ -48,8 +48,9 @@ To deploy this solution, you must have the following:
 - The AWS CLI on your local machine. For more information see [Installing the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) guide.
 - The SAM CLI on your local machine. For more information, see [Install the SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) in the AWS Serverless Application Model Developer guide.
 - The latest version of Boto3. For more information see [Installation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) in the Boto3 Documentation. 
-- An S3 bucket
-- A Pinpoint Project with the email channel enabled
+- An S3 bucket to store the attachments.
+- A Pinpoint Project with the email channel enabled.
+- At least one email endpoint.
 
 ### Deploy the solution
 
