@@ -21,22 +21,23 @@ The diagrams below outline the solution's features and possible scenarios:
 
 ![attachment-scenarios](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/attachment-scenarios.PNG)
 
-![architecture](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/architecture-n.PNG)
+![architecture](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/architecture-nn.PNG)
 
 **Note:** Amazon Pinpoint custom channel processes endpoints in batches of 50 per AWS Lambda invokation.
 
 **Attahced files mechanism:** 
-- **Attachment per recipient:** In this case each recipient (endpoint) should receive a different file e.g. monthly bill. To achieve this, the files stored in S3 should follow the following naming convention prefix_endpointid.file e.g. OctoberBill_111.pdf. You can specify the file prefix in the Amazon Pinpoint journeys custom channel **Custom Data** field. The AWS Lambda function will append the endpoint id and file type. To select this method, specify **ONEPER** in the Pinpoint journey custom data.
-- **Attachment per journey** In this case the attachment file name should be the same as the Pinpoint journey custom data file prefix. To select this method, specify **ONEALL** in the Pinpoint journey custom data.
+- **Attachment per recipient:** Each recipient (endpoint) receives a different file e.g. monthly bill specific to them. The files stored in S3 should have the following naming convention **prefix_endpointid.file** e.g. OctoberBill_111.pdf. The file prefix can be specified in the AWS Lambda **Custom data** when building a journey. The AWS Lambda function builds the S3 object key (file name) by concatenating the **file prefix**, **endpoint id** and **file type**. To select this method, specify **ONEPER** in the Pinpoint journey **Custom data** field.
+- **Attachment per journey** The attachment file name should be the same as the Pinpoint journey **Custom data** file prefix, the AWS Lambda will concatenate the file prefix and file type to form the S3 object key. To select this method, specify **ONEALL** in the Pinpoint journey **Custom data**.
 
 **Sending mechanism for file attachments:**
-- **Attachment per recipient**: To attach and send a file that is specific to a recipient the solution calls the Amazon S3 GetObject API operation per recipient and then the Amazon SES SendRawEmail API operation to send the email with the attachment. To follow that approach specify **ONEPER** in the Pinpoint journey custom data.
-- **Attachment per journey**: To attach the same file for all the recipients the solution calls once the Amazon S3 GetObject API operation, creates a list of all the recipients per AWS Lambda invokation (max 50) and then calls the Amazon SES SendRawEmail API operation once to send the email with the attachment.To follow that approach specify **ONEALL** in the Pinpoint journey custom data.
+- **Attachment per recipient**: To attach and send one file per recipient the solution calls the Amazon S3 GetObject API operation per endpoint id to obtain the S3 object and the Amazon SES SendRawEmail API operation to send the email with the attachment. To follow that approach specify **ONEPER** in the Pinpoint journey **Custom data**.
+- **Attachment per journey**: To attach the same file for all the recipients the solution calls only once per AWS Lambda invokation the Amazon S3 GetObject API operation, creates a list of all the endpoints (max 50) and then calls the Amazon SES SendRawEmail API operation once to send the email with the attachment.To follow that approach specify **ONEALL** in the Pinpoint journey **Custom data**.
 
 ## Considerations
 
 1. **Events' attribution:** Engagement events from the emails sent won't be attributed automatically back to the journey. These events can still be accessed and analysed if streamed using Amazon Kinesis Firehose. To reconsile the events back to the journey, the solution includes the journey id as trace_id when sent via the SendMessage Pinpoint API operation and as a tag **JourneyId** when sent via SES SendRawEmail.
 3. **No email personalization when attaching a file:** Emails with attached files sent via the SES SendRawEmail API operation won't support message helpers for personalisation. The message template is expected to not have any user or endpoint attributes.
+4. **Custom data**: The order and spelling of the AWS Lambda **Custom data** field are key for this solution to function as expected. Each variable is expected to be in the a specific place and some of them need to be spelled as per the instructions in this GitHub repository e.g. NO, ONEPER, ONEALL and NA. If a Pinpoint journey gets published with the wrong **Custom data** then the emails might not be send and it will need to get duplicated and published again.
 
 ## Solution implementation
 
@@ -62,9 +63,12 @@ Clone the repository to your local machine, navigate there and execute the comma
 sam deploy --stack-name pinpoint-email-attachments --guided
 ```
 
-Fill the fields below as displayed. Change the **AWS Region** to the AWS region of your preference, where Amazon Pinpoint is available.
-
-**Note:** the parameter **FileType** refers to the file type of the attachments. You can change that later in the AWS Lambda code or extend the solution to have it as an input parameter for your marketers.
+**SAM input parameters' description:**
+1. **AWS region:** The region you want to deploy this solution
+2. **PinpointAppId:** The Amazon Pinpoint project or application id
+3. **AttachmentsBucketName:** The Amazon S3 bucket that you will store the email attachments (it doesn't need to be public)
+4. **S3URLExpiration**: The number of seconds that the Amazon S3 URL will be accessible
+5. **FileType:** refers to the file type of the attachments. That can be changed later in the AWS Lambda code or extend the solution to have it as **Custom data** input parameter for your marketers.
 
 ```sh
 Configuring SAM deploy
