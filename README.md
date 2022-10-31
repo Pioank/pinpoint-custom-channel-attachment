@@ -136,7 +136,7 @@ Download the email HTML templates below and create them in Pinpoint:
 ### Step 3
 Create an Amazon Pinpoint journey and select **Custom channel** as the first activity. Choose the AWS Lambda function that got deployed as part of this solution.
 
-![pinpoint-journey](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/pinpoint-journey.PNG)
+![pinpoint-journey](https://github.com/Pioank/pinpoint-custom-channel-attachment/blob/main/assets/pinpoint-journey.png)
 
 Under the **Custom data** field enter the data based on the use case you want to test.
 
