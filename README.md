@@ -29,6 +29,8 @@ The diagrams below outline the solution's features and possible scenarios:
 - **Attachment per recipient:** Each recipient (endpoint) receives a different file e.g. monthly bill specific to them. The files stored in S3 should have the following naming convention **prefix_endpointid.file** e.g. OctoberBill_111.pdf. The file prefix can be specified in the AWS Lambda **Custom data** when building a journey. The AWS Lambda function builds the S3 object key (file name) by concatenating the **file prefix**, **endpoint id** and **file type**. To select this method, specify **ONEPER** in the Pinpoint journey **Custom data** field.
 - **Attachment per journey** The attachment file name should be the same as the Pinpoint journey **Custom data** file prefix, the AWS Lambda will concatenate the file prefix and file type to form the S3 object key. To select this method, specify **ONEALL** in the Pinpoint journey **Custom data**.
 
+**Pre-signed S3 link:** This solution uses the **Substitution** component of the Amazon Pinpoint SendMessages API operation to dynamically populate the message template with the S3 pre-signed URL that is passed as a parameter in the request body. Marketers can choose where to place the link in the email template by simply placing **{URL}** in the Amazon Pinpoint HTML template as part of the **href** tag as displayed here: **<a href="{URL}">Download the file</a>**. The solution uses **{URL}** but this can be changed in the code depending the requirements.
+
 **Sending mechanism for file attachments:**
 - **Attachment per recipient**: To attach and send one file per recipient the solution calls the Amazon S3 GetObject API operation per endpoint id to obtain the S3 object and the Amazon SES SendRawEmail API operation to send the email with the attachment. To follow that approach specify **ONEPER** in the Pinpoint journey **Custom data**.
 - **Attachment per journey**: To attach the same file for all the recipients the solution calls only once per AWS Lambda invokation the Amazon S3 GetObject API operation, creates a list of all the endpoints (max 50) and then calls the Amazon SES SendRawEmail API operation once to send the email with the attachment.To follow that approach specify **ONEALL** in the Pinpoint journey **Custom data**.
@@ -148,6 +150,8 @@ Under the **Custom data** field enter the data based on the use case you want to
 4. **ONEPER**: this takes 3 values, **ONEALL** this will use one file for all recipients, **ONEPER** this will use one file per recipient (FilePrefix_EndpointId) and **NO** which indicates that no files will be attached.
 5. **Oct-Statement**: this is the S3 file name prefix that will be concatenated with the endpoint id in case you choose **ONEPER**. If you choose **ONEALL** it will search for the file with the exact name you typed.
 6. **URL**: this field takes two values **URL** to generate an S3 pre-signed URL and **FILE** to attach the file to the email.
+
+**Note:** If you want your email to contain an S3 pre-signed URL you will need to add it in advance to your email template. Use the string {URL} in the Amazon Pinpoint HTML template as part of the **href** tag as displayed here: **<a href="{URL}">Download the file</a>**
 
 ### Step 4
 Publish the journey and check your inbox
